@@ -117,6 +117,28 @@ contextBridge.exposeInMainWorld('desktopWindow', {
     ipcRenderer.on('mineradio-desktop-lyrics-enabled-state', listener);
     return () => ipcRenderer.removeListener('mineradio-desktop-lyrics-enabled-state', listener);
   },
+  // Desktop playlist widget
+  setPlaylistWidgetEnabled: (enabled) => ipcRenderer.invoke('mineradio-widget-set-enabled', !!enabled),
+  pushPlaylistWidgetState: (state) => ipcRenderer.invoke('mineradio-widget-push-state', state || {}),
+  togglePlaylistWidgetSize: () => ipcRenderer.invoke('mineradio-widget-toggle-size'),
+  onPlaylistWidgetAction: (callback) => {
+    if (typeof callback !== 'function') return () => {};
+    const listener = (_event, payload) => callback(payload || {});
+    ipcRenderer.on('mineradio-widget-action', listener);
+    return () => ipcRenderer.removeListener('mineradio-widget-action', listener);
+  },
+  onPlaylistWidgetRequestState: (callback) => {
+    if (typeof callback !== 'function') return () => {};
+    const listener = (_event, payload) => callback(payload || {});
+    ipcRenderer.on('mineradio-widget-request-state', listener);
+    return () => ipcRenderer.removeListener('mineradio-widget-request-state', listener);
+  },
+  onPlaylistWidgetEnabledState: (callback) => {
+    if (typeof callback !== 'function') return () => {};
+    const listener = (_event, payload) => callback(payload || {});
+    ipcRenderer.on('mineradio-widget-enabled-state', listener);
+    return () => ipcRenderer.removeListener('mineradio-widget-enabled-state', listener);
+  },
   setWallpaperMode: (enabled, payload) => ipcRenderer.invoke('mineradio-wallpaper-set-enabled', !!enabled, payload || {}),
   updateWallpaperMode: (payload) => ipcRenderer.invoke('mineradio-wallpaper-update', payload || {}),
   getWallpaperModeStatus: () => ipcRenderer.invoke('mineradio-wallpaper-get-status'),

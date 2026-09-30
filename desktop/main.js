@@ -42,6 +42,52 @@ let desktopLyricsMousePoller = null;
 let desktopLyricsMousePollerBuffer = '';
 let desktopLyricsHotBounds = null;
 let desktopLyricsLastMiddleAt = 0;
+// Desktop playlist widget (acrylic mini panel on the desktop)
+let playlistWidgetWindow = null;
+let playlistWidgetEnabled = false;
+let playlistWidgetUserBounds = null;
+let playlistWidgetExpandedBounds = null;
+let playlistWidgetCompactBounds = null;
+let playlistWidgetMode = 'expanded';
+let playlistWidgetBoundsTransition = false;
+let playlistWidgetHotkeyRegistered = false;
+const PLAYLIST_WIDGET_MINI_HEIGHT = 140;
+const PLAYLIST_WIDGET_MINI_TRIGGER_HEIGHT = 180;
+const PLAYLIST_WIDGET_MINI_MIN_WIDTH = 280;
+const PLAYLIST_WIDGET_MINI_DEFAULT_WIDTH = 380;
+const playlistWidgetBoundsFile = path.join(app.getPath('userData'), 'playlist-widget-bounds.json');
+let playlistWidgetSaveTimer = null;
+function loadPlaylistWidgetBounds() {
+  try {
+    const raw = fs.readFileSync(playlistWidgetBoundsFile, 'utf8');
+    const parsed = JSON.parse(raw);
+    if (parsed && parsed.expanded && parsed.compact) return parsed;
+    if (parsed && typeof parsed.x === 'number' && typeof parsed.width === 'number') {
+      return parsed.height <= PLAYLIST_WIDGET_MINI_TRIGGER_HEIGHT
+        ? { expanded: null, compact: parsed }
+        : { expanded: parsed, compact: null };
+    }
+  } catch (e) {}
+  return null;
+}
+function savePlaylistWidgetBounds() {
+  if (!playlistWidgetWindow || playlistWidgetWindow.isDestroyed()) return;
+  const b = playlistWidgetWindow.getBounds();
+  if (playlistWidgetMode === 'compact') playlistWidgetCompactBounds = { ...b, height: PLAYLIST_WIDGET_MINI_HEIGHT };
+  else playlistWidgetExpandedBounds = { ...b };
+  if (playlistWidgetSaveTimer) clearTimeout(playlistWidgetSaveTimer);
+  playlistWidgetSaveTimer = setTimeout(() => {
+    try {
+      fs.writeFileSync(playlistWidgetBoundsFile, JSON.stringify({
+        version: 2,
+        expanded: playlistWidgetExpandedBounds,
+        compact: playlistWidgetCompactBounds,
+        mode: playlistWidgetMode,
+      }));
+    } catch (e) {}
+  }, 300);
+}
+let playlistWidgetLastPushedState = null;
 let htmlFullscreenActive = false;
 let windowFullscreenActive = false;
 let windowFullscreenDisplayId = null;
@@ -762,6 +808,17 @@ function isTrustedMainWindowIpc(event) {
     if (event.senderFrame && event.senderFrame.parent) return false;
     const sourceUrl = event.senderFrame && event.senderFrame.url || event.sender.getURL();
     return isTrustedMainDocumentUrl(sourceUrl);
+  } catch (_) {
+    return false;
+  }
+}
+
+function isTrustedPlaylistWidgetIpc(event) {
+  try {
+    if (!event || !event.sender || event.sender.isDestroyed()) return false;
+    if (isTrustedMainWindowIpc(event)) return true;
+    return !!(playlistWidgetWindow && !playlistWidgetWindow.isDestroyed()
+      && event.sender === playlistWidgetWindow.webContents);
   } catch (_) {
     return false;
   }
@@ -5886,6 +5943,7 @@ async function createWindowOnce() {
   await loadMainWindowWithRetry(win);
   if (win.isDestroyed()) throw new Error('Main BrowserWindow was destroyed after navigation');
   startupCompleted = true;
+  startDesktopDblClickWatcher();
   startMainWindowVisibilityGuard(win);
   showMainWindowSafely(win, 'navigation-complete');
   writeStartupState('ready', { readyAt: Date.now(), port: mainServerPort || Number(process.env.PORT) || 3000 });
@@ -5958,6 +6016,7 @@ if (!gotSingleInstanceLock) {
     screen.on('display-removed', handleDisplayLayoutChanged);
     powerMonitor.on('resume', () => restoreUnexpectedMainWindowVisibility(mainWindow, 'system-resume'));
     powerMonitor.on('unlock-screen', () => restoreUnexpectedMainWindowVisibility(mainWindow, 'screen-unlock'));
+    registerPlaylistWidgetHotkey();
     await createWindow();
   }).catch((e) => reportWindowCreationFailure('Main', e));
 
@@ -5982,6 +6041,8 @@ if (!gotSingleInstanceLock) {
     stopMemoryAutoTimer();
     unregisterFullDesktopEscapeShortcut();
     unregisterMineradioGlobalHotkeys();
+    unregisterPlaylistWidgetHotkey();
+    stopDesktopDblClickWatcher();
     closeDesktopLyricsWindow();
     if (localServer && localServer.close) localServer.close();
     if (tray) {
@@ -6055,4 +6116,346 @@ if (!gotSingleInstanceLock) {
       app.quit();
     });
   });
+}
+
+// ============================================================
+// Desktop Playlist Widget (acrylic mini panel on the desktop)
+// ============================================================
+function playlistWidgetDefaultBounds() {
+  const display = playlistWidgetUserBounds
+    ? screen.getDisplayMatching(playlistWidgetUserBounds)
+    : screen.getPrimaryDisplay();
+  const work = display.workArea;
+  const width = 380, height = 600;
+  return {
+    width,
+    height,
+    x: Math.round(work.x + work.width - width - 24),
+    y: Math.round(work.y + Math.max(24, (work.height - height) / 2)),
+  };
+}
+
+function playlistWidgetResizeConstraints(mode) {
+  if (!playlistWidgetWindow || playlistWidgetWindow.isDestroyed()) return;
+  try {
+    if (mode === 'compact') {
+      playlistWidgetWindow.setMinimumSize(PLAYLIST_WIDGET_MINI_MIN_WIDTH, PLAYLIST_WIDGET_MINI_HEIGHT);
+      playlistWidgetWindow.setMaximumSize(720, PLAYLIST_WIDGET_MINI_HEIGHT);
+    } else {
+      playlistWidgetWindow.setMinimumSize(320, 240);
+      playlistWidgetWindow.setMaximumSize(720, 1200);
+    }
+  } catch (e) {
+    console.warn('Playlist widget resize constraints skipped:', e.message);
+  }
+}
+
+function applyPlaylistWidgetMode(mode, bounds, options = {}) {
+  if (!playlistWidgetWindow || playlistWidgetWindow.isDestroyed()) return null;
+  const nextMode = mode === 'compact' ? 'compact' : 'expanded';
+  const current = playlistWidgetWindow.getBounds();
+  const source = bounds || current;
+  const next = {
+    ...source,
+    width: Math.max(nextMode === 'compact' ? PLAYLIST_WIDGET_MINI_MIN_WIDTH : 320, Math.min(720, Math.round(Number(source.width) || 380))),
+    height: nextMode === 'compact'
+      ? PLAYLIST_WIDGET_MINI_HEIGHT
+      : Math.max(240, Math.min(1200, Math.round(Number(source.height) || 600))),
+  };
+  playlistWidgetMode = nextMode;
+  playlistWidgetResizeConstraints(nextMode);
+  playlistWidgetBoundsTransition = true;
+  try {
+    playlistWidgetWindow.setBounds(next, false);
+    playlistWidgetUserBounds = playlistWidgetWindow.getBounds();
+  } finally {
+    setTimeout(() => { playlistWidgetBoundsTransition = false; }, 120);
+  }
+  if (nextMode === 'compact') playlistWidgetCompactBounds = { ...playlistWidgetUserBounds };
+  else playlistWidgetExpandedBounds = { ...playlistWidgetUserBounds };
+  if (options.persist !== false) savePlaylistWidgetBounds();
+  sendPlaylistWidgetMode();
+  return playlistWidgetUserBounds;
+}
+
+function createPlaylistWidgetWindow() {
+  if (playlistWidgetWindow && !playlistWidgetWindow.isDestroyed()) {
+    if (!playlistWidgetWindow.isVisible()) playlistWidgetWindow.showInactive();
+    return playlistWidgetWindow;
+  }
+  if (!playlistWidgetUserBounds) {
+    const persisted = loadPlaylistWidgetBounds();
+    playlistWidgetExpandedBounds = persisted && persisted.expanded ? persisted.expanded : null;
+    playlistWidgetCompactBounds = persisted && persisted.compact ? persisted.compact : null;
+    playlistWidgetMode = persisted && (persisted.mode === 'compact' || (!persisted.mode && !persisted.expanded && persisted.compact))
+      ? 'compact'
+      : 'expanded';
+    playlistWidgetUserBounds = playlistWidgetMode === 'compact'
+      ? (playlistWidgetCompactBounds || playlistWidgetDefaultBounds())
+      : (playlistWidgetExpandedBounds || playlistWidgetDefaultBounds());
+  }
+  const bounds = {
+    ...playlistWidgetUserBounds,
+    height: playlistWidgetMode === 'compact' ? PLAYLIST_WIDGET_MINI_HEIGHT : Math.max(240, playlistWidgetUserBounds.height || 600),
+    width: playlistWidgetMode === 'compact'
+      ? Math.max(PLAYLIST_WIDGET_MINI_MIN_WIDTH, playlistWidgetUserBounds.width || PLAYLIST_WIDGET_MINI_DEFAULT_WIDTH)
+      : playlistWidgetUserBounds.width,
+  };
+  playlistWidgetWindow = new BrowserWindow({
+    width: bounds.width,
+    height: bounds.height,
+    x: bounds.x,
+    y: bounds.y,
+    frame: false,
+    transparent: true,
+    backgroundColor: '#00000000',
+    hasShadow: false,
+    resizable: true,
+    movable: true,
+    minWidth: 220,
+    minHeight: 140,
+    maxWidth: 720,
+    maxHeight: 1200,
+    focusable: true,
+    skipTaskbar: true,
+    show: false,
+    title: 'Mineradio Playlist Widget',
+    webPreferences: {
+      preload: path.join(__dirname, 'widget-preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false,
+      backgroundThrottling: false,
+    },
+  });
+  // Not always-on-top: behaves like a desktop widget, sits below other windows.
+  try {
+    playlistWidgetWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: false });
+  } catch (e) {
+    console.warn('Playlist workspace setup skipped:', e.message);
+  }
+  playlistWidgetResizeConstraints(playlistWidgetMode);
+  playlistWidgetWindow.once('ready-to-show', () => {
+    if (!playlistWidgetWindow || playlistWidgetWindow.isDestroyed()) return;
+    playlistWidgetWindow.showInactive();
+    playlistWidgetWindow.webContents.send('mineradio-widget-ready', { enabled: true });
+    sendPlaylistWidgetMode();
+    if (playlistWidgetLastPushedState) {
+      playlistWidgetWindow.webContents.send('mineradio-widget-state', playlistWidgetLastPushedState);
+    }
+  });
+  playlistWidgetWindow.on('moved', () => {
+    if (!playlistWidgetWindow || playlistWidgetWindow.isDestroyed()) return;
+    if (playlistWidgetBoundsTransition) return;
+    playlistWidgetUserBounds = playlistWidgetWindow.getBounds();
+    if (playlistWidgetMode === 'compact') playlistWidgetCompactBounds = { ...playlistWidgetUserBounds, height: PLAYLIST_WIDGET_MINI_HEIGHT };
+    else playlistWidgetExpandedBounds = { ...playlistWidgetUserBounds };
+    savePlaylistWidgetBounds();
+  });
+  playlistWidgetWindow.on('resize', () => {
+    if (!playlistWidgetWindow || playlistWidgetWindow.isDestroyed()) return;
+    if (playlistWidgetBoundsTransition) return;
+    const next = playlistWidgetWindow.getBounds();
+    if (playlistWidgetMode === 'expanded' && next.height <= PLAYLIST_WIDGET_MINI_TRIGGER_HEIGHT) {
+      const compact = {
+        ...next,
+        width: Math.max(PLAYLIST_WIDGET_MINI_MIN_WIDTH, next.width),
+        height: PLAYLIST_WIDGET_MINI_HEIGHT,
+      };
+      applyPlaylistWidgetMode('compact', compact);
+      return;
+    }
+    if (playlistWidgetMode === 'compact' && next.height > PLAYLIST_WIDGET_MINI_TRIGGER_HEIGHT) {
+      applyPlaylistWidgetMode('expanded', next);
+      return;
+    }
+    playlistWidgetUserBounds = next;
+    if (playlistWidgetMode === 'compact') playlistWidgetCompactBounds = { ...next, height: PLAYLIST_WIDGET_MINI_HEIGHT };
+    else playlistWidgetExpandedBounds = { ...next };
+    savePlaylistWidgetBounds();
+  });
+  playlistWidgetWindow.on('closed', () => {
+    playlistWidgetWindow = null;
+    playlistWidgetEnabled = false;
+    broadcastPlaylistWidgetEnabledState(false);
+  });
+  playlistWidgetWindow.loadURL(overlayUrl('desktop-playlist-widget.html')).catch((e) => {
+    console.warn('Playlist widget load failed:', e.message);
+  });
+  return playlistWidgetWindow;
+}
+
+function closePlaylistWidgetWindow() {
+  playlistWidgetEnabled = false;
+  if (playlistWidgetWindow && !playlistWidgetWindow.isDestroyed()) {
+    playlistWidgetWindow.close();
+  }
+  playlistWidgetWindow = null;
+  broadcastPlaylistWidgetEnabledState(false);
+}
+
+function broadcastPlaylistWidgetEnabledState(enabled) {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('mineradio-widget-enabled-state', { enabled: !!enabled });
+  }
+}
+
+function sendPlaylistWidgetState(state) {
+  playlistWidgetLastPushedState = state || null;
+  if (!playlistWidgetWindow || playlistWidgetWindow.isDestroyed()) return;
+  playlistWidgetWindow.webContents.send('mineradio-widget-state', state || {});
+}
+
+function sendPlaylistWidgetMode() {
+  if (!playlistWidgetWindow || playlistWidgetWindow.isDestroyed()) return;
+  playlistWidgetWindow.webContents.send('mineradio-widget-mode', {
+    mode: playlistWidgetMode,
+    bounds: playlistWidgetWindow.getBounds(),
+  });
+}
+
+function forwardWidgetActionToMain(action) {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send("mineradio-widget-action", action || {});
+  }
+}
+
+ipcMain.handle('mineradio-widget-set-enabled', async (event, enabled) => {
+  try {
+    if (!isTrustedPlaylistWidgetIpc(event)) return { ok: false, enabled: false, error: 'UNTRUSTED_SENDER' };
+    playlistWidgetEnabled = !!enabled;
+    if (enabled) {
+      createPlaylistWidgetWindow();
+    } else {
+      closePlaylistWidgetWindow();
+    }
+    return { ok: true, enabled: playlistWidgetEnabled };
+  } catch (e) {
+    return { ok: false, error: e.message || 'WIDGET_FAILED' };
+  }
+});
+
+ipcMain.handle('mineradio-widget-push-state', async (event, state) => {
+  try {
+    if (!isTrustedMainWindowIpc(event)) return { ok: false, error: 'UNTRUSTED_SENDER' };
+    sendPlaylistWidgetState(state || {});
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message || 'WIDGET_PUSH_FAILED' };
+  }
+});
+
+ipcMain.handle('mineradio-widget-action', async (event, action) => {
+  try {
+    if (!isTrustedPlaylistWidgetIpc(event)) return { ok: false, error: 'UNTRUSTED_SENDER' };
+    forwardWidgetActionToMain(action || {});
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message || 'WIDGET_ACTION_FAILED' };
+  }
+});
+
+ipcMain.handle('mineradio-widget-request-state', async (event) => {
+  try {
+    if (!isTrustedPlaylistWidgetIpc(event)) return { ok: false, error: 'UNTRUSTED_SENDER' };
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('mineradio-widget-request-state', {});
+    }
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message || 'WIDGET_REQUEST_FAILED' };
+  }
+});
+
+ipcMain.handle('mineradio-widget-toggle-size', async (event) => {
+  try {
+    if (!isTrustedPlaylistWidgetIpc(event)) return { ok: false, error: 'UNTRUSTED_SENDER' };
+    if (!playlistWidgetWindow || playlistWidgetWindow.isDestroyed()) return { ok: false, error: 'NO_WIDGET_WINDOW' };
+    const compact = playlistWidgetMode === 'compact' || playlistWidgetWindow.getBounds().height <= PLAYLIST_WIDGET_MINI_TRIGGER_HEIGHT;
+    if (!compact) playlistWidgetExpandedBounds = { ...playlistWidgetWindow.getBounds() };
+    const restored = playlistWidgetExpandedBounds || playlistWidgetDefaultBounds();
+    const next = compact
+      ? { ...restored }
+      : { ...playlistWidgetWindow.getBounds(), width: Math.max(PLAYLIST_WIDGET_MINI_MIN_WIDTH, Math.min(720, playlistWidgetWindow.getBounds().width)), height: PLAYLIST_WIDGET_MINI_HEIGHT };
+    const bounds = applyPlaylistWidgetMode(compact ? 'expanded' : 'compact', next);
+    return { ok: true, compact: playlistWidgetMode === 'compact', bounds };
+  } catch (e) {
+    return { ok: false, error: e.message || 'WIDGET_RESIZE_FAILED' };
+  }
+});
+// Toggle widget visibility (used by global hotkey / double-click desktop)
+function togglePlaylistWidgetVisibility() {
+  if (!playlistWidgetWindow || playlistWidgetWindow.isDestroyed()) return;
+  if (playlistWidgetWindow.isVisible()) {
+    playlistWidgetWindow.hide();
+  } else {
+    playlistWidgetWindow.showInactive();
+  }
+}
+
+ipcMain.handle('mineradio-widget-toggle-visibility', async (event) => {
+  if (!isTrustedMainWindowIpc(event)) return { ok: false, error: 'UNTRUSTED_SENDER' };
+  togglePlaylistWidgetVisibility();
+  return { ok: true, visible: playlistWidgetWindow ? playlistWidgetWindow.isVisible() : false };
+});
+
+// Global hotkey: Ctrl+Alt+W toggles widget show/hide. Registration must happen
+// after app.ready; registering at module load is unreliable on Windows.
+function registerPlaylistWidgetHotkey() {
+  if (playlistWidgetHotkeyRegistered) return true;
+  try {
+    playlistWidgetHotkeyRegistered = globalShortcut.register('CommandOrControl+Alt+W', () => {
+      togglePlaylistWidgetVisibility();
+    });
+  } catch (e) {
+    playlistWidgetHotkeyRegistered = false;
+    console.warn('Failed to register widget hotkey:', e.message);
+  }
+  return playlistWidgetHotkeyRegistered;
+}
+
+function unregisterPlaylistWidgetHotkey() {
+  if (!playlistWidgetHotkeyRegistered) return;
+  try { globalShortcut.unregister('CommandOrControl+Alt+W'); } catch (_) {}
+  playlistWidgetHotkeyRegistered = false;
+}
+// ============================================================
+
+// ============================================================
+// Desktop double-click watcher: toggle playlist widget visibility
+// ============================================================
+let desktopDblClickProc = null;
+
+function startDesktopDblClickWatcher() {
+  if (desktopDblClickProc) return;
+  try {
+    const script = path.join(__dirname, 'desktop-dblclick-watcher.ps1');
+    desktopDblClickProc = spawn('powershell.exe', [
+      '-NoProfile', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', script
+    ], { windowsHide: true });
+    desktopDblClickProc.stdout.on('data', (data) => {
+      const out = String(data);
+      // Follow DeskBox widget visibility
+      if (out.includes('DESKBOX_SHOWN') || out.includes('DESKBOX_HIDDEN')) {
+        if (!playlistWidgetEnabled) return; // user hasn't enabled widget
+        if (!playlistWidgetWindow || playlistWidgetWindow.isDestroyed()) return;
+        const shouldShow = out.includes('DESKBOX_SHOWN');
+        if (shouldShow && !playlistWidgetWindow.isVisible()) {
+          playlistWidgetWindow.showInactive();
+        } else if (!shouldShow && playlistWidgetWindow.isVisible()) {
+          playlistWidgetWindow.hide();
+        }
+      }
+    });
+    desktopDblClickProc.on('error', () => { desktopDblClickProc = null; });
+    desktopDblClickProc.on('exit', () => { desktopDblClickProc = null; });
+  } catch (e) {
+    console.warn('Desktop dblclick watcher:', e.message);
+  }
+}
+
+function stopDesktopDblClickWatcher() {
+  if (!desktopDblClickProc) return;
+  try { desktopDblClickProc.kill(); } catch (_) {}
+  desktopDblClickProc = null;
 }

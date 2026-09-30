@@ -38,22 +38,22 @@
 !include WinMessages.nsh
 
 !ifndef MINERADIO_INSTALL_DIR_NAME
-  !define MINERADIO_INSTALL_DIR_NAME "Mineradio"
+  !define MINERADIO_INSTALL_DIR_NAME "Mineradio2"
 !endif
 !ifndef MINERADIO_INSTALL_DIR_NAME_LOWER
-  !define MINERADIO_INSTALL_DIR_NAME_LOWER "mineradio"
+  !define MINERADIO_INSTALL_DIR_NAME_LOWER "mineradio2"
 !endif
 !ifndef MINERADIO_INSTALL_MARKER
   !define MINERADIO_INSTALL_MARKER ".mineradio-install-root"
 !endif
 !ifndef MINERADIO_MARKER_APP_ID
-  !define MINERADIO_MARKER_APP_ID "com.mineradio.desktop"
+  !define MINERADIO_MARKER_APP_ID "com.mineradio2.desktop"
 !endif
 !ifndef MINERADIO_INSTALL_BRAND
-  !define MINERADIO_INSTALL_BRAND "MINERADIO"
+  !define MINERADIO_INSTALL_BRAND "MINERADIO2"
 !endif
 !ifndef MINERADIO_INSTALL_TITLE
-  !define MINERADIO_INSTALL_TITLE "Mineradio 安装"
+  !define MINERADIO_INSTALL_TITLE "Mineradio2 安装"
 !endif
 !ifndef MINERADIO_INSTALL_NOTICE
   !define MINERADIO_INSTALL_NOTICE ""

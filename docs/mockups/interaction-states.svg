@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0c121b"/><stop offset=".55" stop-color="#214348"/><stop offset="1" stop-color="#201322"/></linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#263e42" stop-opacity=".88"/><stop offset="1" stop-color="#0a141a" stop-opacity=".9"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="15" stdDeviation="18" flood-color="#000" flood-opacity=".38"/></filter>
+  </defs>
+  <rect width="1440" height="900" fill="url(#bg)"/>
+  <text x="72" y="72" fill="#eafffb" font-size="26" font-family="Microsoft YaHei, sans-serif" font-weight="700">桌面歌单小窗 · 状态草图</text>
+  <text x="72" y="104" fill="#8eb3ad" font-size="14" font-family="Microsoft YaHei, sans-serif">锁定、穿透、空状态和同步失败都在同一套窗口框架里呈现</text>
+  <g transform="translate(72 150)" filter="url(#shadow)">
+    <rect width="390" height="610" rx="28" fill="url(#card)" stroke="#a5fff0" stroke-opacity=".3"/>
+    <text x="28" y="48" fill="#dffff8" font-size="18" font-family="Microsoft YaHei, sans-serif" font-weight="700">A · 已锁定</text><rect x="276" y="25" width="84" height="28" rx="14" fill="#6cf6dc" fill-opacity=".18"/><text x="296" y="44" fill="#aaffef" font-size="12" font-family="Microsoft YaHei, sans-serif">锁定</text><path d="M32 84h326" stroke="#b2fff2" stroke-opacity=".14"/>
+    <rect x="28" y="112" width="334" height="92" rx="18" fill="#fff" fill-opacity=".06"/><text x="48" y="146" fill="#f4fffd" font-size="21" font-family="Microsoft YaHei, sans-serif" font-weight="700">喜欢的音乐</text><text x="48" y="174" fill="#8db2ad" font-size="13" font-family="Microsoft YaHei, sans-serif">37 首 · 点击歌曲即可播放</text><circle cx="318" cy="158" r="20" fill="#6cf6dc" fill-opacity=".2"/><path d="M312 158h12M318 152v12" stroke="#b7fff3" stroke-width="2"/>
+    <text x="28" y="250" fill="#7fa7a3" font-size="12" font-family="Microsoft YaHei, sans-serif">窗口保持在桌面上层，点击穿过面板</text><rect x="28" y="278" width="334" height="44" rx="22" fill="#fff" fill-opacity=".055"/><circle cx="52" cy="300" r="12" fill="#6cf6dc"/><text x="78" y="305" fill="#bfe9e1" font-size="13" font-family="Microsoft YaHei, sans-serif">中键：锁定 / 解除穿透</text><rect x="28" y="538" width="334" height="40" rx="20" fill="#6cf6dc" fill-opacity=".15"/><text x="138" y="564" fill="#c8fff5" font-size="13" font-family="Microsoft YaHei, sans-serif">关闭小窗</text>
+  </g>
+  <g transform="translate(525 150)" filter="url(#shadow)">
+    <rect width="390" height="610" rx="28" fill="url(#card)" stroke="#d7c5ff" stroke-opacity=".3"/>
+    <text x="28" y="48" fill="#f1ebff" font-size="18" font-family="Microsoft YaHei, sans-serif" font-weight="700">B · 空状态</text><rect x="286" y="25" width="76" height="28" rx="14" fill="#fff" fill-opacity=".08"/><text x="304" y="44" fill="#c8c1d9" font-size="12" font-family="Microsoft YaHei, sans-serif">未登录</text><path d="M32 84h326" stroke="#fff" stroke-opacity=".13"/>
+    <circle cx="195" cy="236" r="62" fill="#8b6ca0" fill-opacity=".26"/><path d="M164 240c22-34 40-34 62 0M176 206a20 20 0 1 0 38 0" fill="none" stroke="#eadbff" stroke-width="5" stroke-linecap="round"/><text x="120" y="346" fill="#f2ebff" font-size="21" font-family="Microsoft YaHei, sans-serif" font-weight="700">还没有同步歌单</text><text x="86" y="378" fill="#b6aac9" font-size="13" font-family="Microsoft YaHei, sans-serif">登录后即可加载我的歌单与喜欢的音乐</text><rect x="106" y="420" width="178" height="42" rx="21" fill="#d6b8ff" fill-opacity=".22"/><text x="160" y="446" fill="#f5eaff" font-size="13" font-family="Microsoft YaHei, sans-serif">去登录</text>
+  </g>
+  <g transform="translate(978 150)" filter="url(#shadow)">
+    <rect width="390" height="610" rx="28" fill="url(#card)" stroke="#ffc68d" stroke-opacity=".3"/>
+    <text x="28" y="48" fill="#fff0de" font-size="18" font-family="Microsoft YaHei, sans-serif" font-weight="700">C · 同步失败</text><rect x="270" y="25" width="92" height="28" rx="14" fill="#ffb56b" fill-opacity=".18"/><text x="290" y="44" fill="#ffd1a2" font-size="12" font-family="Microsoft YaHei, sans-serif">使用缓存</text><path d="M32 84h326" stroke="#fff0da" stroke-opacity=".13"/>
+    <rect x="28" y="114" width="334" height="64" rx="16" fill="#ffb56b" fill-opacity=".09"/><circle cx="55" cy="146" r="14" fill="#ffb56b" fill-opacity=".25"/><path d="M55 138v10M55 154v2" stroke="#ffd4a4" stroke-width="2"/><text x="82" y="143" fill="#ffe2bf" font-size="14" font-family="Microsoft YaHei, sans-serif">同步失败，正在显示上次数据</text><text x="82" y="163" fill="#bda083" font-size="12" font-family="Microsoft YaHei, sans-serif">最后成功同步：今天 09:18</text>
+    <text x="28" y="232" fill="#dfc2a3" font-size="13" font-family="Microsoft YaHei, sans-serif">最近使用</text><g font-family="Microsoft YaHei, sans-serif"><rect x="28" y="254" width="334" height="56" rx="14" fill="#fff" fill-opacity=".05"/><text x="50" y="278" fill="#fff0de" font-size="14">通勤歌单</text><text x="50" y="297" fill="#ad947e" font-size="12">18 首</text><rect x="28" y="322" width="334" height="56" rx="14" fill="#fff" fill-opacity=".05"/><text x="50" y="346" fill="#fff0de" font-size="14">喜欢的音乐</text><text x="50" y="365" fill="#ad947e" font-size="12">37 首</text></g><rect x="28" y="538" width="334" height="40" rx="20" fill="#ffb56b" fill-opacity=".16"/><text x="163" y="564" fill="#ffe1bc" font-size="13">重新同步</text>
+  </g>
+</svg>

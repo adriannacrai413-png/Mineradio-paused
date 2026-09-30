@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#081118"/><stop offset=".52" stop-color="#173842"/><stop offset="1" stop-color="#28131f"/></linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#17272f" stop-opacity=".90"/><stop offset="1" stop-color="#091217" stop-opacity=".93"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#000" flood-opacity=".4"/></filter>
+  </defs>
+  <rect width="1440" height="900" fill="url(#bg)"/>
+  <circle cx="1080" cy="180" r="260" fill="#67ead5" opacity=".12"/>
+  <circle cx="200" cy="760" r="340" fill="#e77995" opacity=".12"/>
+  <rect x="46" y="34" width="1348" height="64" rx="24" fill="#081117" fill-opacity=".72" stroke="#aaffef" stroke-opacity=".18"/>
+  <text x="84" y="74" fill="#f1fffd" font-size="23" font-family="Microsoft YaHei, sans-serif" font-weight="700">MINERADIO</text>
+  <text x="300" y="74" fill="#86a9a7" font-size="14" font-family="Microsoft YaHei, sans-serif">沉浸式音乐桌面</text>
+  <g transform="translate(1170 48)" filter="url(#shadow)">
+    <rect width="180" height="38" rx="19" fill="#6cf6dc" fill-opacity=".18" stroke="#9bffef" stroke-opacity=".62"/>
+    <rect x="10" y="8" width="22" height="22" rx="7" fill="#69f6dc" fill-opacity=".9"/>
+    <path d="M16 19h10M21 14v10" stroke="#092028" stroke-width="2"/>
+    <text x="44" y="25" fill="#d7fff8" font-size="14" font-family="Microsoft YaHei, sans-serif">桌面歌单</text>
+    <circle cx="157" cy="19" r="4" fill="#75f9df"/><circle cx="157" cy="19" r="9" fill="none" stroke="#75f9df" stroke-opacity=".35"/>
+  </g>
+  <g transform="translate(84 158)" filter="url(#shadow)">
+    <rect width="1270" height="270" rx="34" fill="url(#panel)" stroke="#a8fff1" stroke-opacity=".18"/>
+    <rect x="34" y="34" width="200" height="200" rx="24" fill="#b87074"/><circle cx="134" cy="134" r="70" fill="#f9d39b" opacity=".72"/><path d="M76 164c38-60 78-60 116 0" fill="none" stroke="#a25b58" stroke-width="14"/>
+    <text x="274" y="74" fill="#7fb1ac" font-size="14" font-family="Microsoft YaHei, sans-serif">正在播放</text>
+    <text x="274" y="116" fill="#f3fffd" font-size="32" font-family="Microsoft YaHei, sans-serif" font-weight="700">Afterglow</text>
+    <text x="274" y="148" fill="#93bdb7" font-size="17" font-family="Microsoft YaHei, sans-serif">Ed Sheeran · 夜行歌单</text>
+    <rect x="274" y="188" width="730" height="4" rx="2" fill="#41626a"/><rect x="274" y="188" width="290" height="4" rx="2" fill="#74f5db"/><circle cx="564" cy="190" r="7" fill="#c1fff3"/>
+    <g transform="translate(1060 88)" fill="none" stroke="#b9fff2" stroke-width="2"><circle cx="60" cy="60" r="60" stroke-opacity=".18"/><path d="M40 60h40M60 40v40"/></g>
+    <text x="1105" y="170" fill="#9fffee" font-size="13" font-family="Microsoft YaHei, sans-serif">打开桌面小窗</text>
+  </g>
+  <g transform="translate(84 474)" font-family="Microsoft YaHei, sans-serif"><text fill="#f0fffc" font-size="24" font-weight="700">我的音乐</text><text x="0" y="28" fill="#7ea19f" font-size="13">从这里管理你常听的内容</text></g>
+  <g transform="translate(84 548)" filter="url(#shadow)">
+    <rect width="390" height="220" rx="26" fill="#15252c" fill-opacity=".78" stroke="#a8fff1" stroke-opacity=".16"/>
+    <rect x="24" y="24" width="84" height="84" rx="18" fill="#b87074"/><text x="130" y="56" fill="#f1fffd" font-size="22" font-weight="700">我的歌单</text><text x="130" y="84" fill="#83aaa6" font-size="14">12 张 · 164 首</text><text x="28" y="152" fill="#a5c7c2" font-size="14">常用歌单、最近更新和播放入口</text><rect x="24" y="176" width="138" height="28" rx="14" fill="#6cf6dc" fill-opacity=".18"/><text x="52" y="195" fill="#c5fff3" font-size="12">打开歌单面板</text>
+  </g>
+  <g transform="translate(510 548)" filter="url(#shadow)">
+    <rect width="390" height="220" rx="26" fill="#15252c" fill-opacity=".78" stroke="#a8fff1" stroke-opacity=".16"/>
+    <rect x="24" y="24" width="84" height="84" rx="18" fill="#5c4a66"/><text x="130" y="56" fill="#f1fffd" font-size="22" font-weight="700">喜欢的音乐</text><text x="130" y="84" fill="#83aaa6" font-size="14">37 首 · 已同步</text><text x="28" y="152" fill="#a5c7c2" font-size="14">红心歌曲快速播放和整理</text><rect x="24" y="176" width="138" height="28" rx="14" fill="#fff" fill-opacity=".08"/><text x="52" y="195" fill="#c5d9d5" font-size="12">查看喜欢歌曲</text>
+  </g>
+  <g transform="translate(936 548)" filter="url(#shadow)">
+    <rect width="418" height="220" rx="26" fill="#15252c" fill-opacity=".78" stroke="#a8fff1" stroke-opacity=".16"/>
+    <text x="28" y="50" fill="#f1fffd" font-size="21" font-weight="700">桌面歌单小窗</text><text x="28" y="82" fill="#83aaa6" font-size="14">把常用歌单放到桌面，随时点开播放</text><path d="M30 120h354" stroke="#b2fff2" stroke-opacity=".12"/><circle cx="42" cy="154" r="8" fill="#72f6db"/><text x="64" y="160" fill="#b7d7d2" font-size="14">已启用 · 窗口位置已保存</text><rect x="28" y="176" width="166" height="28" rx="14" fill="#6cf6dc" fill-opacity=".18"/><text x="56" y="195" fill="#c5fff3" font-size="12">显示桌面小窗</text>
+  </g>
+</svg>

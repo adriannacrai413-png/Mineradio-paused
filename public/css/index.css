@@ -18574,3 +18574,12 @@ body.desktop-shell.desktop-wallpaper-mode.diy-mode #bottom-bar.stage-mode {
     width: calc(100vw - var(--desktop-safe-left) - var(--desktop-safe-right) - 24px);
   }
 }
+
+/* Desktop playlist widget entry icon (top-right) */
+#playlist-widget-btn { position: relative; }
+#playlist-widget-btn.on { color: #7ee787; }
+#playlist-widget-btn.on::after {
+  content: ""; position: absolute; bottom: 3px; right: 3px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #3ddc84; box-shadow: 0 0 6px #3ddc84;
+}

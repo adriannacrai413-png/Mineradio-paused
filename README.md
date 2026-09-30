@@ -1,4 +1,42 @@
-# Mineradio
+# Mineradio2（非官方桌面小组件二创版）
+
+> 这是基于 [XxHuberrr/Mineradio-paused](https://github.com/XxHuberrr/Mineradio-paused) 的个人二创版本，不代表原作者或任何音乐平台的官方版本。
+
+Mineradio2 保留原 Mineradio 的沉浸式音乐播放器体验，并增加可独立运行的桌面歌单/喜欢音乐小组件：液态玻璃圆角面板、独立歌词页、翻译歌词、逐字高亮，以及可缩放的迷你播放器模式。
+
+## Mineradio2 新增功能
+
+- 桌面入口可加载「我的歌单」与「我喜欢的音乐」。
+- 小组件支持完整模式与迷你播放器模式；高度缩小到约 `180px` 以下会自动切换为约 `140px` 高的迷你模式。
+- 完整模式和迷你模式分别记忆上次的位置与尺寸；迷你模式限制宽度，只允许横向调整。
+- 小组件内置独立歌词页面，支持翻译行、YRC 逐字进度、当前行渐变扫光和上下文自动居中。
+- 面板使用圆角液态玻璃效果，移除圆角外的矩形边框。
+- 桌面快捷方式直接启动 Electron，不经过可见终端窗口。
+
+## 安装与开发
+
+Windows 发布包命名为 `Mineradio2-2.3.0-Setup.exe`，安装后与原版 `Mineradio` 使用独立的应用名、App ID、可执行文件名和快捷方式，不会主动覆盖原版安装。
+
+开发运行：
+
+```bash
+npm install
+npm start
+npm test
+npm run build:win
+```
+
+`npm test` 会运行桌面小组件回归测试以及项目现有的 Node 测试。部分历史测试依赖特定本机权限、旧版本号或外部环境，若出现这类失败，请以对应测试输出为准，不要把它们误认为小组件功能失败。
+
+## 发布说明
+
+本版本计划发布到 Fork 仓库 [`adriannacrai413-png/Mineradio-paused`](https://github.com/adriannacrai413-png/Mineradio-paused) 的独立分支，而不是直接向原仓库推送。发布前请确认仓库中不包含 Cookie、Token、日志、本地用户数据、`node_modules`、`.lnk` 文件或 `dist/` 构建产物。
+
+本项目采用 GPL-3.0-only。网易云音乐、QQ 音乐及其他服务均为第三方服务，使用时请遵守其用户协议、版权规则和会员权益规则。本项目不提供绕过付费、破解音质或重新分发音乐内容的能力。
+
+---
+
+# 原版 Mineradio
 
 > **项目状态：长期停更**
 >

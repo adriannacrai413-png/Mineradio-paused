@@ -1,21 +1,22 @@
 {
   "name": "mineradio",
-  "productName": "Mineradio",
-  "version": "2.2.0",
-  "description": "Windows 沉浸式音乐播放器，融合桌面模式、歌词舞台、粒子视觉和 3D 歌单架。",
+  "productName": "Mineradio2",
+  "version": "2.3.0",
+  "description": "Mineradio 非官方二创版：加入自适应桌面歌单小组件、迷你播放器和独立歌词页。",
   "author": "Mineradio",
   "license": "GPL-3.0-only",
   "main": "desktop/main.js",
   "private": true,
   "scripts": {
     "start": "electron .",
+    "test": "node --test tests/*.test.js",
     "build:win": "electron-builder --win nsis",
     "build:win:dir": "electron-builder --win dir",
     "build:win:internal-beta": "electron-builder --config electron-builder.internal-beta.json --win nsis --publish never"
   },
   "build": {
-    "appId": "com.mineradio.desktop",
-    "productName": "Mineradio",
+      "appId": "com.mineradio2.desktop",
+      "productName": "Mineradio2",
     "directories": {
       "output": "dist",
       "buildResources": "build"
@@ -47,7 +48,7 @@
     ],
     "asar": false,
     "win": {
-      "executableName": "Mineradio",
+      "executableName": "Mineradio2",
       "icon": "build/icon.ico",
       "signAndEditExecutable": false,
       "target": [
@@ -65,28 +66,30 @@
       "allowToChangeInstallationDirectory": false,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Mineradio",
+      "shortcutName": "Mineradio2",
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
       "installerSidebar": "build/installerSidebar.bmp",
       "uninstallerSidebar": "build/installerSidebar.bmp",
       "installerHeader": "build/installerHeader.bmp",
       "include": "build/installer.nsh",
-      "artifactName": "Mineradio-${version}-Setup.${ext}"
+      "artifactName": "Mineradio2-${version}-Setup.${ext}"
     },
     "publish": [
       {
         "provider": "github",
-        "owner": "XxHuberrr",
-        "repo": "Mineradio"
+        "owner": "adriannacrai413-png",
+        "repo": "Mineradio-paused"
       }
     ]
   },
   "mineradio": {
+    "runtimeName": "Mineradio2",
+    "appUserModelId": "com.mineradio2.desktop",
     "update": {
       "provider": "github",
-      "owner": "XxHuberrr",
-      "repo": "Mineradio",
+      "owner": "adriannacrai413-png",
+      "repo": "Mineradio-paused",
       "preview": false,
       "preferMirrors": true,
       "mirrors": [

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Mineradio Playlist Widget</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root { --widget-accent: #00f5d4; --widget-accent-soft: rgba(0,245,212,.18); --lyric-primary: #f6fdff; --lyric-highlight: #fff0b8; --lyric-glow: #9cffdf; }
+  html, body { width: 100%; height: 100%; background: transparent; font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; color: #fff; overflow: hidden; user-select: none; }
+  .widget { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; background: linear-gradient(145deg, rgba(16,28,31,.88), rgba(17,15,25,.82) 58%, rgba(8,25,30,.86)); backdrop-filter: blur(28px) saturate(140%); -webkit-backdrop-filter: blur(28px) saturate(140%); border-radius: 16px; border: 0; outline: none; box-shadow: 0 14px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,.12); overflow: hidden; }
+  .widget::before { content: ""; position: absolute; inset: -30% -20% auto; height: 56%; pointer-events: none; background: radial-gradient(circle at 28% 18%, rgba(0,245,212,.16), transparent 54%), radial-gradient(circle at 86% 0%, rgba(145,111,255,.12), transparent 45%); filter: blur(18px); opacity: .9; }
+  .widget > * { position: relative; z-index: 1; }
+  .header { -webkit-app-region: drag; display: flex; align-items: center; gap: 8px; padding: 10px 10px 8px; flex-shrink: 0; }
+  .header .cover { -webkit-app-region: no-drag; width: 38px; height: 38px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: #333; cursor: pointer; transition: transform .2s, opacity .2s; }
+  .header .cover:hover { opacity: 0.8; transform: scale(1.05); }
+  .header .meta { flex: 1; min-width: 0; }
+  .header .title { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .header .sub { font-size: 10px; color: rgba(255,255,255,0.5); margin-top: 1px; }
+  .header .window-actions { -webkit-app-region: no-drag; display: flex; align-items: center; gap: 4px; }
+  .header .icon-btn, .playbar button { -webkit-app-region: no-drag; width: 30px; height: 30px; border: 1px solid rgba(255,255,255,.12); border-radius: 50%; background: rgba(0,0,0,.10); color: rgba(255,255,255,.72); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform .2s cubic-bezier(.16,1,.3,1), background .2s, border-color .2s, color .2s, box-shadow .2s; box-shadow: inset 0 0 2px 1px rgba(255,255,255,.22), 0 6px 18px rgba(0,0,0,.16); backdrop-filter: blur(12px) saturate(1.55); }
+  .header .icon-btn svg, .playbar button svg { width: 15px; height: 15px; pointer-events: none; }
+  .header .icon-btn:hover, .playbar button:hover { color: #fff; background: rgba(255,255,255,.075); border-color: rgba(255,255,255,.28); transform: translateY(-1px) scale(1.035); box-shadow: inset 0 0 2px 1px rgba(255,255,255,.32), 0 8px 22px rgba(0,0,0,.22), 0 0 14px rgba(0,245,212,.09); }
+  .header .icon-btn:active, .playbar button:active { transform: scale(.94); }
+  .header .close-btn { color: rgba(255,255,255,0.7); }
+  .header .close-btn:hover { background: rgba(255,80,80,0.7); color: #fff; }
+  .tabs { display: flex; gap: 4px; padding: 0 10px 6px; flex-shrink: 0; }
+  .tab { flex: 1; padding: 5px 0; text-align: center; font-size: 11px; border-radius: 7px; cursor: pointer; background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.6); border: 1px solid transparent; transition: background .2s, color .2s, border-color .2s; }
+  .tab.active { background: rgba(255,255,255,0.14); color: #fff; border-color: rgba(255,255,255,0.12); }
+  .subhead { display: none; align-items: center; gap: 6px; padding: 0 10px 6px; flex-shrink: 0; }
+  .subhead.show { display: flex; }
+  .subhead .back { border: none; background: rgba(255,255,255,0.08); color: #fff; width: 22px; height: 22px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+  .subhead .name { font-size: 11px; color: rgba(255,255,255,0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+  .list { flex: 1; overflow-y: auto; padding: 4px 6px; min-height: 0; display: flex; flex-direction: column; gap: 5px; }
+  .list::-webkit-scrollbar { width: 3px; }
+  .list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+  .row { display: flex; align-items: center; gap: 7px; padding: 6px; border-radius: 9px; cursor: pointer; background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.05); transition: background .18s, border-color .18s, transform .18s; }
+  .row:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.12); transform: translateY(-1px); }
+  .row.playing { background: rgba(0,245,212,0.07); border-color: rgba(0,245,212,0.25); }
+  .eq { display: none; align-items: flex-end; gap: 2px; height: 12px; width: 14px; flex-shrink: 0; }
+  .row.playing .eq { display: flex; }
+  .eq span { display: block; width: 3px; border-radius: 2px; background: #00f5d4; animation: eq-rise 1.2s ease-in-out infinite; }
+  .eq span:nth-child(1) { height: 60%; animation-delay: 0s; }
+  .eq span:nth-child(2) { height: 100%; animation-delay: 0.2s; }
+  .eq span:nth-child(3) { height: 40%; animation-delay: 0.4s; }
+  .paused .eq span { animation-play-state: paused; }
+  @keyframes eq-rise { 0%,100% { transform: scaleY(0.5); opacity: 0.6; } 50% { transform: scaleY(1); opacity: 1; } }
+  .spinner { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.12); border-top-color: #00f5d4; animation: spin 0.7s linear infinite; margin: 0 auto; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .row .idx { width: 16px; font-size: 9px; color: rgba(255,255,255,0.4); text-align: center; flex-shrink: 0; }
+  .row .rcover { width: 30px; height: 30px; border-radius: 5px; object-fit: cover; flex-shrink: 0; background: #333; }
+  .row .rmeta { flex: 1; min-width: 0; }
+  .row .rname { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row .rar { font-size: 10px; color: rgba(255,255,255,0.45); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row .like { -webkit-app-region: no-drag; width: 20px; height: 20px; border: none; background: transparent; color: rgba(255,255,255,0.4); cursor: pointer; flex-shrink: 0; font-size: 12px; }
+  .row .like.liked { color: #ff5b7a; }
+  .row .next-up { -webkit-app-region: no-drag; width: 20px; height: 20px; border: none; background: transparent; color: rgba(255,255,255,0.35); cursor: pointer; flex-shrink: 0; font-size: 11px; border-radius: 4px; }
+  .row .next-up:hover { color: #00f5d4; background: rgba(0,245,212,0.1); }
+  .empty { text-align: center; padding: 30px 12px; font-size: 11px; color: rgba(255,255,255,0.4); }
+  .lyrics-view { display: none; flex: 1; flex-direction: column; min-height: 0; padding: 0 10px 8px; }
+  .lyrics-view.show { display: flex; animation: lyrics-page-in .32s cubic-bezier(.16,1,.3,1) both; }
+  .lyrics-head { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; padding: 2px 2px 8px; }
+  .lyrics-back { width: 26px; height: 26px; border: 1px solid rgba(255,255,255,.13); border-radius: 9px; background: rgba(255,255,255,.07); color: rgba(255,255,255,.78); cursor: pointer; font-size: 15px; line-height: 1; transition: background .2s, color .2s, transform .2s; }
+  .lyrics-back:hover { color: #fff; background: var(--widget-accent-soft); transform: translateX(-1px); }
+  .lyrics-head-copy { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .lyrics-kicker { color: var(--lyric-glow); font-size: 9px; letter-spacing: .16em; text-transform: uppercase; opacity: .78; }
+  .lyrics-head-title { color: rgba(255,255,255,.92); font-size: 12px; font-weight: 800; }
+  .lyrics-track { margin-left: auto; min-width: 0; max-width: 58%; text-align: right; font-size: 10px; color: rgba(255,255,255,.46); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lyrics-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 18px 8px 26px; scrollbar-width: none; -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 12%, #000 88%, transparent 100%); mask-image: linear-gradient(180deg, transparent 0, #000 12%, #000 88%, transparent 100%); }
+  .lyrics-scroll::-webkit-scrollbar { display: none; }
+  .lyrics-line { font-size: clamp(12px, 2.8vw, 16px); color: rgba(255,255,255,0.28); line-height: 1.55; padding: 8px 4px; text-align: center; font-weight: 500; opacity: .62; filter: blur(.1px); transition: color .35s, transform .35s, opacity .35s, filter .35s; }
+  .lyrics-line.past { opacity: .38; }
+  .lyrics-line.upcoming { opacity: .64; }
+  .lyrics-line.active { font-weight: 800; opacity: 1; transform: scale(1.045); filter: none; text-shadow: 0 0 16px color-mix(in srgb, var(--lyric-glow) 48%, transparent), 0 0 32px color-mix(in srgb, var(--lyric-glow) 22%, transparent); }
+  .lyrics-line.active:not(.has-words) .lyric-main { color: transparent; background: linear-gradient(90deg, var(--lyric-primary) 0%, var(--lyric-highlight) var(--lyric-progress, 0%), var(--lyric-glow) calc(var(--lyric-progress, 0%) + 2%), var(--lyric-primary) 100%); -webkit-background-clip: text; background-clip: text; }
+  .lyric-main { display: block; }
+  .lyric-translation { display: block; margin-top: 3px; color: rgba(255,255,255,.38); font-size: .72em; font-weight: 500; line-height: 1.35; }
+  .lyrics-line.active .lyric-translation { color: color-mix(in srgb, var(--lyric-glow) 58%, rgba(255,255,255,.46)); }
+  .lyric-word { color: rgba(255,255,255,.72); }
+  .lyrics-line.active.has-words .lyric-word { color: transparent; background: linear-gradient(90deg, var(--lyric-highlight) 0%, var(--lyric-highlight) var(--word-progress, 0%), var(--lyric-glow) calc(var(--word-progress, 0%) + 3%), var(--lyric-primary) calc(var(--word-progress, 0%) + 7%), var(--lyric-primary) 100%); -webkit-background-clip: text; background-clip: text; }
+  .lyrics-progress { height: 2px; margin: 0 12px 5px; border-radius: 2px; background: rgba(255,255,255,.09); overflow: hidden; flex: 0 0 auto; }
+  .lyrics-progress span { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--lyric-glow), var(--lyric-highlight)); box-shadow: 0 0 12px var(--lyric-glow); transition: width .18s linear; }
+  .lyrics-empty { text-align: center; padding: 40px 12px; font-size: 11px; color: rgba(255,255,255,0.35); }
+  @keyframes lyrics-page-in { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+  .playbar { flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 8px 10px 10px; border-top: 1px solid rgba(255,255,255,0.06); }
+  .playbar .play { width: 42px; height: 42px; color: rgba(255,255,255,.96); background: rgba(0,0,0,.10); box-shadow: inset 0 0 2px 1px rgba(255,255,255,.34), inset 0 0 10px 4px rgba(255,255,255,.13), 0 10px 30px rgba(0,0,0,.18), 0 0 20px rgba(0,245,212,.08); }
+  .playbar .play:hover { background: rgba(255,255,255,.075); }
+  .playbar .like-btn { color: rgba(255,155,179,.88); }
+  .playbar .like-btn.liked { color: #ff809a; box-shadow: inset 0 0 2px 1px rgba(255,180,196,.40), 0 0 18px rgba(255,91,122,.18); }
+  .playbar .lyrics-btn { font-size: 11px; font-weight: 800; color: rgba(255,255,255,0.58); }
+  .playbar .lyrics-btn:hover { color: #00f5d4; }
+  .mini-lyric { display: none; padding: 0 12px 8px; color: rgba(255,255,255,.84); font-size: 12px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 0 14px color-mix(in srgb, var(--lyric-glow) 42%, transparent); }
+  @media (max-width: 360px), (max-height: 180px) {
+    .widget { border-radius: 22px; }
+    .header { padding: 8px 8px 6px; }
+    .header .cover { width: 34px; height: 34px; }
+    .header .sub, .tabs, .subhead, .list { display: none !important; }
+    .mini-lyric { display: block; }
+    .lyrics-view { display: none !important; }
+    .playbar { padding: 6px 8px 8px; gap: 5px; }
+    .playbar button { width: 27px; height: 27px; }
+    .playbar .play { width: 36px; height: 36px; }
+    .playbar .lyrics-btn { display: none; }
+  }
+  @media (min-width: 361px) and (max-width: 520px) and (min-height: 181px) {
+    .widget { border-radius: 25px; }
+  }
+  html.widget-forced-compact .header .sub,
+  html.widget-forced-compact .tabs,
+  html.widget-forced-compact .subhead,
+  html.widget-forced-compact .list,
+  html.widget-forced-compact .lyrics-view { display: none !important; }
+  html.widget-forced-compact .mini-lyric { display: block !important; }
+  html.widget-forced-expanded .mini-lyric { display: none !important; }
+  html.widget-forced-expanded:not(.widget-panel-lyrics) .tabs { display: flex !important; }
+  html.widget-forced-expanded:not(.widget-panel-lyrics) .list { display: flex !important; }
+  html.widget-panel-lyrics .tabs, html.widget-panel-lyrics .subhead { display: none !important; }
+  html.widget-panel-lyrics .lyrics-view { display: flex !important; }
+  html.widget-panel-lyrics .list { display: none !important; }
+  html.widget-forced-compact.widget-panel-lyrics .lyrics-view { display: none !important; }
+</style>
+</head>
+<body>
+<div class="widget">
+  <div class="header">
+    <img class="cover" id="hdr-cover" src="" alt="">
+    <div class="meta">
+      <div class="title" id="hdr-title">未在播放</div>
+      <div class="sub" id="hdr-sub"></div>
+    </div>
+    <div class="window-actions">
+      <button class="icon-btn" id="btn-expand" title="切换显示模式" aria-label="切换显示模式"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3H3v5M3 3l7 7M16 21h5v-5M21 21l-7-7"/></svg></button>
+      <button class="icon-btn close-btn" id="close-btn" title="关闭" aria-label="关闭"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+  </div>
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-tab="queue">队列</div>
+    <div class="tab" data-tab="playlists">歌单</div>
+  </div>
+  <div class="subhead" id="subhead">
+    <button class="back" id="back-btn">←</button>
+    <div class="name" id="subhead-name"></div>
+  </div>
+  <div class="list" id="list"></div>
+  <section class="lyrics-view" id="lyrics-view" aria-label="歌词页面">
+    <div class="lyrics-head">
+      <button class="lyrics-back" id="lyrics-back" type="button" title="返回队列" aria-label="返回队列">‹</button>
+      <div class="lyrics-head-copy"><span class="lyrics-kicker">NOW PLAYING</span><span class="lyrics-head-title">歌词</span></div>
+      <div class="lyrics-track" id="lyrics-track"></div>
+    </div>
+    <div class="lyrics-scroll" id="lyrics-scroll"></div>
+    <div class="lyrics-progress" aria-hidden="true"><span id="lyrics-progress-fill"></span></div>
+  </section>
+  <div class="mini-lyric" id="mini-lyric"></div>
+  <div class="playbar">
+    <button class="like-btn" id="btn-like" title="喜欢" aria-label="喜欢"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.8 8.8c0 5.3-8.8 10.1-8.8 10.1S3.2 14.1 3.2 8.8A4.7 4.7 0 0 1 12 6.4a4.7 4.7 0 0 1 8.8 2.4Z"/></svg></button>
+    <button id="btn-prev" title="上一首" aria-label="上一首"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+    <button class="play" id="btn-play" title="播放/暂停" aria-label="播放/暂停"><svg id="play-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+    <button id="btn-next" title="下一首" aria-label="下一首"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+    <button class="lyrics-btn" id="btn-lyrics" title="歌词" aria-label="歌词"><span>词</span></button>
+  </div>
+</div>
+<script>
+(function () {
+  var state = {
+    current: null, playing: false,
+    queue: [], playlists: [],
+    detailTracks: [], detailName: '',
+    view: 'queue', playingIndex: -1,
+    panel: 'list', lyrics: [], currentTime: 0, duration: 0,
+    lyricActiveIndex: -1, lyricProgress: 0,
+    lyricPalette: { primary: '#f6fdff', highlight: '#fff0b8', glow: '#9cffdf' }
+  };
+  var lastLyricScrollIndex = -1;
+  var $ = function (id) { return document.getElementById(id); };
+  function songKey(song) {
+    if (!song) return '';
+    return [song.name || '', song.artist || '', song.cover || '', song.liked ? 1 : 0].join('|');
+  }
+  function listKey(list) {
+    return (Array.isArray(list) ? list : []).map(function (item) {
+      return [item && item.name || '', item && item.artist || '', item && item.cover || '', item && item.liked ? 1 : 0].join('~');
+    }).join('||');
+  }
+  function playlistKey(list) {
+    return (Array.isArray(list) ? list : []).map(function (item) {
+      return [item && item.id || '', item && item.name || '', item && item.count || 0, item && item.provider || ''].join('~');
+    }).join('||');
+  }
+  function lyricKey(list) {
+    return (Array.isArray(list) ? list : []).map(function (line) {
+      var words = Array.isArray(line && line.words) ? line.words : [];
+      return [line && line.time || 0, line && line.text || '', line && line.translation || '', words.length].join('~');
+    }).join('||');
+  }
+
+  function render() {
+    document.body.classList.toggle('paused', !state.playing);
+    var isLyrics = state.panel === 'lyrics';
+    document.documentElement.classList.toggle('widget-panel-lyrics', isLyrics);
+    $('list').style.display = isLyrics ? 'none' : '';
+    $('lyrics-view').classList.toggle('show', isLyrics);
+    if (isLyrics) {
+      var lv = $('lyrics-scroll');
+      $('lyrics-track').textContent = state.current
+        ? [state.current.name || '未知', state.current.artist || ''].filter(Boolean).join(' · ')
+        : '未在播放';
+      lastLyricScrollIndex = -1;
+      if (!state.lyrics || !state.lyrics.length) {
+        lv.innerHTML = '<div class="lyrics-empty">暂无歌词</div>';
+      } else {
+        lv.innerHTML = '';
+        state.lyrics.forEach(function (lyric, i) {
+          var row = document.createElement('div');
+          row.className = 'lyrics-line';
+          row.dataset.index = String(i);
+          var main = document.createElement('span');
+          main.className = 'lyric-main';
+          var words = Array.isArray(lyric.words) ? lyric.words.filter(function (word) { return word && word.text; }) : [];
+          if (words.length) {
+            row.classList.add('has-words');
+            words.forEach(function (word) {
+              var span = document.createElement('span');
+              span.className = 'lyric-word';
+              span.textContent = word.text;
+              span.dataset.start = String(Number(word.t) || 0);
+              span.dataset.duration = String(Math.max(.06, Number(word.d) || 0));
+              main.appendChild(span);
+            });
+          } else {
+            main.textContent = lyric.text || '';
+          }
+          row.appendChild(main);
+          if (lyric.translation) {
+            var translation = document.createElement('span');
+            translation.className = 'lyric-translation';
+            translation.textContent = lyric.translation;
+            row.appendChild(translation);
+          }
+          lv.appendChild(row);
+        });
+      }
+    }
+    $('tabs').style.display = (isLyrics || state.view === 'detail') ? 'none' : 'flex';
+    $('subhead').classList.toggle('show', !isLyrics && state.view === 'detail');
+    if (state.current) {
+      $('hdr-title').textContent = state.current.name || '未知';
+      $('hdr-sub').textContent = state.current.artist || '';
+      $('hdr-cover').src = state.current.cover || '';
+    } else {
+      $('hdr-title').textContent = '未在播放';
+      $('hdr-sub').textContent = '';
+      $('hdr-cover').src = '';
+    }
+    $('play-icon').innerHTML = state.playing
+      ? '<path d="M7 5h3v14H7zm7 0h3v14h-3z"/>'
+      : '<path d="M8 5v14l11-7z"/>';
+    $('btn-like').classList.toggle('liked', !!(state.current && state.current.liked));
+    var miniLine = state.lyrics && state.lyrics[state.lyricActiveIndex];
+    $('mini-lyric').textContent = miniLine && miniLine.text ? miniLine.text : (state.current ? state.current.name : '');
+    document.documentElement.style.setProperty('--lyric-primary', state.lyricPalette.primary || '#f6fdff');
+    document.documentElement.style.setProperty('--lyric-highlight', state.lyricPalette.highlight || '#fff0b8');
+    document.documentElement.style.setProperty('--lyric-glow', state.lyricPalette.glow || '#9cffdf');
+    if (state.view === 'detail') $('subhead-name').textContent = state.detailName || '歌单';
+    document.querySelectorAll('.tab').forEach(function (t) { t.classList.toggle('active', t.dataset.tab === state.view); });
+
+    var list = $('list'); list.innerHTML = '';
+    if (state.view === 'queue') {
+      if (!state.queue.length) { list.innerHTML = '<div class="empty">队列为空</div>'; return; }
+      state.queue.forEach(function (song, i) {
+        list.appendChild(makeRow(i, song,
+          function () { window.widgetBridge.sendAction({ type: 'play-index', index: i }); },
+          function () { window.widgetBridge.sendAction({ type: 'like-index', index: i }); },
+          function () { window.widgetBridge.sendAction({ type: 'next-up-index', index: i }); }));
+      });
+    } else if (state.view === 'playlists') {
+      if (!state.playlists.length) { list.innerHTML = '<div class="empty">暂无歌单<br>登录账号后显示</div>'; return; }
+      state.playlists.forEach(function (pl) {
+        var row = document.createElement('div');
+        row.className = 'row';
+        row.innerHTML = '<img class="rcover" src="' + (pl.cover || '') + '" onerror="this.style.background=\'#333\'">' +
+          '<div class="rmeta"><div class="rname"></div><div class="rar"></div></div>';
+        row.querySelector('.rname').textContent = pl.name || '未命名';
+        row.querySelector('.rar').textContent = (pl.count || 0) + ' 首';
+        row.addEventListener('click', function () {
+          state.view = 'detail'; state.detailName = pl.name;
+          window.widgetBridge.sendAction({ type: 'open-playlist', provider: pl.provider, pid: pl.id, title: pl.name });
+          render();
+        });
+        list.appendChild(row);
+      });
+    } else if (state.view === 'detail') {
+      if (!state.detailTracks.length) { list.innerHTML = '<div class="empty"><div class="spinner"></div></div>'; return; }
+      state.detailTracks.forEach(function (song, i) {
+        list.appendChild(makeRow(i, song,
+          function () { window.widgetBridge.sendAction({ type: 'play-detail-track', index: i }); },
+          function () { window.widgetBridge.sendAction({ type: 'like-detail-track', index: i }); },
+          function () { window.widgetBridge.sendAction({ type: 'next-up-detail-track', index: i }); }));
+      });
+    }
+  }
+  function makeRow(i, song, onClick, onLike, onNextUp) {
+    var row = document.createElement('div');
+    row.className = 'row' + (i === state.playingIndex ? ' playing' : '');
+    row.innerHTML = '<div class="eq"><span></span><span></span><span></span></div>' +
+      '<div class="idx">' + String(i+1).padStart(2,'0') + '</div>' +
+      '<img class="rcover" src="' + (song.cover || '') + '" onerror="this.style.background=\'#333\'">' +
+      '<div class="rmeta"><div class="rname"></div><div class="rar"></div></div>' +
+      '<button class="like' + (song.liked ? ' liked' : '') + '">♡</button>' +
+      '<button class="next-up" title="下一首播放">⏭</button>';
+    row.querySelector('.rname').textContent = song.name || '未知';
+    row.querySelector('.rar').textContent = song.artist || '';
+    row.addEventListener('click', onClick);
+    row.querySelector('.like').addEventListener('click', function (e) { e.stopPropagation(); onLike(); });
+    if (onNextUp) row.querySelector('.next-up').addEventListener('click', function (e) { e.stopPropagation(); onNextUp(); });
+    return row;
+  }
+  function applyState(s) {
+    if (!s) return;
+    var needsRender = false;
+    if (s.current !== undefined && songKey(s.current) !== songKey(state.current)) { state.current = s.current; needsRender = true; }
+    if (s.playing !== undefined && state.playing !== !!s.playing) { state.playing = !!s.playing; needsRender = true; }
+    if (s.queue !== undefined && listKey(s.queue) !== listKey(state.queue)) { state.queue = s.queue || []; needsRender = true; }
+    if (s.playlists !== undefined && playlistKey(s.playlists) !== playlistKey(state.playlists)) { state.playlists = s.playlists || []; needsRender = true; }
+    if (s.detailTracks !== undefined && listKey(s.detailTracks) !== listKey(state.detailTracks)) { state.detailTracks = s.detailTracks || []; needsRender = true; }
+    if (s.playingIndex !== undefined && state.playingIndex !== s.playingIndex) { state.playingIndex = s.playingIndex; needsRender = true; }
+    if (s.view && state.view !== s.view) { state.view = s.view; needsRender = true; }
+    if (s.lyrics !== undefined && lyricKey(s.lyrics) !== lyricKey(state.lyrics)) { state.lyrics = s.lyrics || []; needsRender = true; }
+    if (s.currentTime !== undefined) state.currentTime = s.currentTime;
+    if (s.duration !== undefined) state.duration = s.duration;
+    if (s.lyricActiveIndex !== undefined) state.lyricActiveIndex = Number(s.lyricActiveIndex);
+    if (s.lyricProgress !== undefined) state.lyricProgress = Math.max(0, Math.min(1, Number(s.lyricProgress) || 0));
+    if (s.lyricPalette !== undefined) {
+      var nextPalette = Object.assign({}, state.lyricPalette, s.lyricPalette || {});
+      if (nextPalette.primary !== state.lyricPalette.primary || nextPalette.highlight !== state.lyricPalette.highlight || nextPalette.glow !== state.lyricPalette.glow) needsRender = true;
+      state.lyricPalette = nextPalette;
+    }
+    if (needsRender) render();
+    updateLyricsActive();
+  }
+  function updateLyricsActive() {
+    var miniLine = state.lyrics && state.lyrics[state.lyricActiveIndex];
+    if ($('mini-lyric')) $('mini-lyric').textContent = miniLine && miniLine.text ? miniLine.text : (state.current ? state.current.name : '');
+    var progressFill = $('lyrics-progress-fill');
+    if (progressFill) progressFill.style.width = Math.round((state.lyricProgress || 0) * 100) + '%';
+    if (state.panel !== 'lyrics' || !state.lyrics || !state.lyrics.length) return;
+    var t = state.currentTime;
+    var activeIdx = state.lyricActiveIndex;
+    if (activeIdx == null || activeIdx < 0) for (var i = 0; i < state.lyrics.length; i++) {
+      if ((state.lyrics[i].time || 0) <= t) activeIdx = i;
+      else break;
+    }
+    var lines = document.querySelectorAll('.lyrics-line');
+    lines.forEach(function(el, i) {
+      el.classList.toggle('active', i === activeIdx);
+      el.classList.toggle('past', i < activeIdx);
+      el.classList.toggle('upcoming', i > activeIdx);
+      if (i === activeIdx) el.style.setProperty('--lyric-progress', String(Math.round((state.lyricProgress || 0) * 100)) + '%');
+      else el.style.removeProperty('--lyric-progress');
+      el.querySelectorAll('.lyric-word').forEach(function (word) {
+        var start = Number(word.dataset.start) || 0;
+        var duration = Math.max(.06, Number(word.dataset.duration) || .06);
+        var wordProgress = i === activeIdx ? Math.max(0, Math.min(1, (state.currentTime - start) / duration)) : (i < activeIdx ? 1 : 0);
+        word.style.setProperty('--word-progress', Math.round(wordProgress * 100) + '%');
+      });
+    });
+    if (activeIdx >= 0 && lines[activeIdx]) {
+      var lv = $('lyrics-scroll');
+      if (activeIdx !== lastLyricScrollIndex) {
+        lastLyricScrollIndex = activeIdx;
+        lv.scrollTo({ top: lines[activeIdx].offsetTop - lv.clientHeight / 2 + lines[activeIdx].offsetHeight / 2, behavior: 'smooth' });
+      }
+    }
+  }
+  setInterval(updateLyricsActive, 500);
+  document.querySelectorAll('.tab').forEach(function (t) { t.addEventListener('click', function () { state.view = t.dataset.tab; render(); }); });
+  $('back-btn').addEventListener('click', function () { state.view = 'playlists'; render(); });
+  $('btn-play').addEventListener('click', function () { window.widgetBridge.sendAction({ type: 'toggle-play' }); });
+  $('btn-prev').addEventListener('click', function () { window.widgetBridge.sendAction({ type: 'prev' }); });
+  $('btn-next').addEventListener('click', function () { window.widgetBridge.sendAction({ type: 'next' }); });
+  $('btn-like').addEventListener('click', function () { window.widgetBridge.sendAction({ type: 'like-current' }); });
+  $('close-btn').addEventListener('click', function () { window.widgetBridge.close(); });
+  $('lyrics-back').addEventListener('click', function () { state.panel = 'list'; render(); });
+  $('hdr-cover').addEventListener('click', function () { state.panel = state.panel === 'lyrics' ? 'list' : 'lyrics'; render(); });
+  $('btn-lyrics').addEventListener('click', function () { state.panel = state.panel === 'lyrics' ? 'list' : 'lyrics'; render(); });
+  function applyWidgetLayout(compact) {
+    document.documentElement.classList.toggle('widget-forced-compact', !!compact);
+    document.documentElement.classList.toggle('widget-forced-expanded', !compact);
+    $('btn-expand').setAttribute('aria-label', compact ? '展开小组件' : '收起小组件');
+    $('btn-expand').title = compact ? '展开小组件' : '收起小组件';
+  }
+  function toggleWidgetSizeFallback() {
+    var compact = document.documentElement.classList.contains('widget-forced-compact')
+      || window.innerHeight <= 180;
+    var nextCompact = !compact;
+    applyWidgetLayout(nextCompact);
+    if (window.widgetBridge && typeof window.widgetBridge.toggleSize === 'function') {
+      window.widgetBridge.toggleSize().then(function (result) {
+        if (result && result.ok === true) applyWidgetLayout(!!result.compact);
+      }).catch(function (error) {
+        console.error('[PlaylistWidget] native resize failed:', error);
+      });
+    }
+  }
+  $('btn-expand').addEventListener('click', function (event) {
+    event.preventDefault();
+    event.stopPropagation();
+    toggleWidgetSizeFallback();
+  });
+  try {
+    var cached = localStorage.getItem('mineradio-widget-cache');
+    if (cached) { var cs = JSON.parse(cached); applyState(cs); }
+  } catch (e) {}
+  if (window.widgetBridge) {
+    window.widgetBridge.onState(applyState);
+    window.widgetBridge.onMode(function (payload) {
+      if (payload && payload.mode) applyWidgetLayout(payload.mode === 'compact');
+    });
+    window.widgetBridge.onReady(function () { window.widgetBridge.requestState(); });
+    window.widgetBridge.requestState();
+  }
+  applyWidgetLayout(window.innerHeight <= 180);
+  render();
+})();
+</script>
+</body>
+</html>

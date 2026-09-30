@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#111927"/><stop offset=".48" stop-color="#223c4a"/><stop offset="1" stop-color="#140e1d"/></linearGradient>
+    <radialGradient id="glow" cx="30%" cy="18%" r="80%"><stop stop-color="#73f7da" stop-opacity=".28"/><stop offset="1" stop-color="#73f7da" stop-opacity="0"/></radialGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#15232c" stop-opacity=".72"/><stop offset=".52" stop-color="#0a1219" stop-opacity=".62"/><stop offset="1" stop-color="#091016" stop-opacity=".78"/></linearGradient>
+    <linearGradient id="edge" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b4fff0" stop-opacity=".68"/><stop offset=".45" stop-color="#fff" stop-opacity=".14"/><stop offset="1" stop-color="#00f5d4" stop-opacity=".28"/></linearGradient>
+    <filter id="blur"><feGaussianBlur stdDeviation="36"/></filter>
+    <filter id="shadow"><feDropShadow dx="0" dy="24" stdDeviation="24" flood-color="#000" flood-opacity=".42"/></filter>
+  </defs>
+  <rect width="1440" height="900" fill="url(#wall)"/>
+  <circle cx="220" cy="120" r="300" fill="#ef6f9f" opacity=".22" filter="url(#blur)"/>
+  <circle cx="1120" cy="720" r="360" fill="#36d9d0" opacity=".16" filter="url(#blur)"/>
+  <rect width="1440" height="900" fill="url(#glow)"/>
+  <g opacity=".28" fill="#d9fff8"><circle cx="120" cy="660" r="4"/><circle cx="1320" cy="170" r="5"/><circle cx="1170" cy="260" r="3"/><circle cx="340" cy="220" r="3"/></g>
+
+  <g transform="translate(810 115)" filter="url(#shadow)">
+    <rect width="505" height="650" rx="30" fill="url(#glass)" stroke="url(#edge)" stroke-width="2"/>
+    <rect x="1" y="1" width="503" height="112" rx="29" fill="#fff" opacity=".035"/>
+    <text x="30" y="42" fill="#eafffb" font-size="24" font-family="Microsoft YaHei, sans-serif" font-weight="700">桌面歌单</text>
+    <text x="30" y="70" fill="#91b4b1" font-size="13" font-family="Microsoft YaHei, sans-serif">同步于 2026-09-28 10:41 · 37 首</text>
+    <g transform="translate(372 26)" fill="none" stroke="#bdfcf1" stroke-width="2"><path d="M0 8h16M8 0v16"/><circle cx="8" cy="8" r="15" opacity=".45"/></g>
+    <g transform="translate(425 26)" fill="none" stroke="#bdfcf1" stroke-width="2"><path d="M0 3h18M0 9h18M0 15h18"/></g>
+    <rect x="28" y="92" width="449" height="1" fill="#b9fff1" opacity=".18"/>
+    <g transform="translate(28 126)">
+      <rect width="210" height="38" rx="19" fill="#70f5dc" opacity=".18" stroke="#8affea" stroke-opacity=".45"/>
+      <text x="22" y="25" fill="#d9fff9" font-size="15" font-family="Microsoft YaHei, sans-serif">我的歌单</text>
+      <rect x="220" width="225" height="38" rx="19" fill="#fff" opacity=".035"/>
+      <text x="250" y="25" fill="#92aaa9" font-size="15" font-family="Microsoft YaHei, sans-serif">喜欢的音乐</text>
+    </g>
+    <g transform="translate(28 190)">
+      <rect width="449" height="72" rx="16" fill="#fff" opacity=".065" stroke="#d8fff7" stroke-opacity=".12"/>
+      <rect x="14" y="12" width="48" height="48" rx="12" fill="#d18372"/><circle cx="38" cy="36" r="16" fill="#ffddb1" opacity=".72"/><path d="M25 42c8-16 18-16 26 0" fill="none" stroke="#ae5750" stroke-width="4"/>
+      <text x="78" y="31" fill="#f3fffd" font-size="17" font-family="Microsoft YaHei, sans-serif" font-weight="700">夜行歌单</text>
+      <text x="78" y="53" fill="#95bdb8" font-size="13" font-family="Microsoft YaHei, sans-serif">12 首 · 最近更新</text>
+      <text x="415" y="42" fill="#8fffe8" font-size="21" font-family="Arial">›</text>
+    </g>
+    <g transform="translate(28 278)" font-family="Microsoft YaHei, sans-serif">
+      <g><text x="0" y="20" fill="#6e9594" font-size="12">01</text><rect x="34" y="0" width="42" height="42" rx="10" fill="#263e4b"/><circle cx="55" cy="21" r="12" fill="#eaa37a" opacity=".8"/><text x="92" y="18" fill="#ebfffb" font-size="15">Midnight City</text><text x="92" y="36" fill="#7fa6a4" font-size="12">M83</text><text x="414" y="26" fill="#73f7da" font-size="18">▶</text></g>
+      <g transform="translate(0 62)"><text x="0" y="20" fill="#6e9594" font-size="12">02</text><rect x="34" y="0" width="42" height="42" rx="10" fill="#3f354a"/><circle cx="55" cy="21" r="12" fill="#b5a1ff" opacity=".75"/><text x="92" y="18" fill="#ebfffb" font-size="15">Afterglow</text><text x="92" y="36" fill="#7fa6a4" font-size="12">Ed Sheeran</text></g>
+      <g transform="translate(0 124)"><text x="0" y="20" fill="#6e9594" font-size="12">03</text><rect x="34" y="0" width="42" height="42" rx="10" fill="#374a3e"/><circle cx="55" cy="21" r="12" fill="#a4df8c" opacity=".72"/><text x="92" y="18" fill="#ebfffb" font-size="15">Bloom</text><text x="92" y="36" fill="#7fa6a4" font-size="12">The Paper Kites</text></g>
+      <g transform="translate(0 186)"><text x="0" y="20" fill="#6e9594" font-size="12">04</text><rect x="34" y="0" width="42" height="42" rx="10" fill="#473634"/><circle cx="55" cy="21" r="12" fill="#ff997e" opacity=".72"/><text x="92" y="18" fill="#ebfffb" font-size="15">Slow Dancing</text><text x="92" y="36" fill="#7fa6a4" font-size="12">V</text></g>
+    </g>
+    <rect x="28" y="548" width="449" height="1" fill="#b9fff1" opacity=".13"/>
+    <text x="30" y="585" fill="#83a5a3" font-size="12" font-family="Microsoft YaHei, sans-serif">拖动标题栏移动 · 中键切换穿透 · 双击歌曲播放</text>
+    <rect x="28" y="604" width="150" height="30" rx="15" fill="#70f5dc" opacity=".15"/>
+    <text x="54" y="624" fill="#bffef3" font-size="12" font-family="Microsoft YaHei, sans-serif">正在播放：Afterglow</text>
+  </g>
+  <g transform="translate(70 760)" font-family="Microsoft YaHei, sans-serif"><text fill="#eafffb" font-size="22" font-weight="700">Mineradio 桌面模式</text><text y="28" fill="#8eaca9" font-size="13">歌单小窗可移动、可锁定、可穿透，保持桌面背景完整可见</text></g>
+</svg>
