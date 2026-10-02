@@ -38,6 +38,9 @@ test('widget lyrics support translation and word timing without HTML interpolati
 
 test('widget playlist surface has liquid-glass playback transitions', () => {
   for (const marker of [
+    'class="playbar-controls"',
+    'class="compact-empty"',
+    'widget-no-track',
     'class="playbar-track"',
     'id="playbar-cover"',
     'id="playbar-title"',
@@ -51,6 +54,7 @@ test('widget playlist surface has liquid-glass playback transitions', () => {
   }
   assert.match(widgetHtml, /row\.style\.setProperty\(['"]--row-index['"]/);
   assert.match(widgetHtml, /setCoverElement\(\$\(['"]playbar-cover['"]\)/);
+  assert.match(widgetHtml, /grid-template-columns:\s*minmax\(0,1fr\) auto minmax\(0,1fr\)/);
 });
 
 test('widget typography and like feedback stay readable and stateful', () => {
