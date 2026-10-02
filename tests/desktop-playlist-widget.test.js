@@ -53,6 +53,23 @@ test('widget playlist surface has liquid-glass playback transitions', () => {
   assert.match(widgetHtml, /setCoverElement\(\$\(['"]playbar-cover['"]\)/);
 });
 
+test('widget typography and like feedback stay readable and stateful', () => {
+  for (const marker of [
+    'Segoe UI Variable',
+    '-webkit-font-smoothing: antialiased',
+    'heart-like-pop',
+    'heart-unlike',
+    'aria-pressed',
+    'likeKey',
+    'animateLikeButton',
+  ]) {
+    assert.ok(widgetHtml.includes(marker), `missing widget readability marker: ${marker}`);
+  }
+  assert.match(widgetHtml, /<button class="like[^>]*aria-pressed=/);
+  assert.match(widgetHtml, /class="like-btn"[^>]*id="btn-like"/);
+  assert.match(widgetHtml, /queueLikeEffect\(state\.current, nextLiked\)/);
+});
+
 test('widget window state is bounded and mode-specific', () => {
   assert.match(mainJs, /PLAYLIST_WIDGET_MINI_TRIGGER_HEIGHT\s*=\s*180/);
   assert.match(mainJs, /PLAYLIST_WIDGET_MINI_HEIGHT\s*=\s*140/);

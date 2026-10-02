@@ -6,7 +6,7 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   :root { --widget-accent: #00f5d4; --widget-accent-soft: rgba(0,245,212,.18); --lyric-primary: #f6fdff; --lyric-highlight: #fff0b8; --lyric-glow: #9cffdf; }
-  html, body { width: 100%; height: 100%; background: transparent; font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; color: #fff; overflow: hidden; user-select: none; }
+  html, body { width: 100%; height: 100%; background: transparent; font-family: "Segoe UI Variable Text", "Segoe UI Variable", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif; color: #fff; overflow: hidden; user-select: none; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; font-synthesis: none; }
   .widget { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; background: linear-gradient(145deg, rgba(16,28,31,.91), rgba(17,15,25,.86) 58%, rgba(8,25,30,.89)); backdrop-filter: blur(38px) saturate(145%); -webkit-backdrop-filter: blur(38px) saturate(145%); border-radius: 16px; border: 0; outline: none; box-shadow: 0 20px 58px rgba(0,0,0,.46), inset 0 1px 0 rgba(255,255,255,.14), inset 0 -1px 0 rgba(0,245,212,.06); overflow: hidden; }
   .widget::before { content: ""; position: absolute; inset: -30% -20% auto; height: 56%; pointer-events: none; background: radial-gradient(circle at 28% 18%, rgba(0,245,212,.16), transparent 54%), radial-gradient(circle at 86% 0%, rgba(145,111,255,.12), transparent 45%); filter: blur(18px); opacity: .9; }
   .widget > * { position: relative; z-index: 1; }
@@ -16,8 +16,8 @@
   @keyframes cover-swap { 0% { opacity: .35; transform: scale(.92) rotate(-1deg); filter: saturate(.65) blur(2px); } 55% { opacity: 1; transform: scale(1.045) rotate(.35deg); filter: saturate(1.18) blur(0); } 100% { opacity: 1; transform: scale(1) rotate(0); filter: saturate(1) blur(0); } }
   .header .cover:hover { opacity: 0.8; transform: scale(1.05); }
   .header .meta { flex: 1; min-width: 0; }
-  .header .title { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .header .sub { font-size: 10px; color: rgba(255,255,255,0.5); margin-top: 1px; }
+  .header .title { font-size: 14px; line-height: 1.25; font-weight: 700; letter-spacing: .005em; color: rgba(255,255,255,.94); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .header .sub { font-size: 10.5px; line-height: 1.3; color: rgba(225,240,240,.64); margin-top: 2px; }
   .header .window-actions { -webkit-app-region: no-drag; display: flex; align-items: center; gap: 4px; }
   .header .icon-btn, .playbar button { -webkit-app-region: no-drag; width: 30px; height: 30px; border: 1px solid rgba(255,255,255,.12); border-radius: 50%; background: rgba(0,0,0,.10); color: rgba(255,255,255,.72); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform .2s cubic-bezier(.16,1,.3,1), background .2s, border-color .2s, color .2s, box-shadow .2s; box-shadow: inset 0 0 2px 1px rgba(255,255,255,.22), 0 6px 18px rgba(0,0,0,.16); backdrop-filter: blur(12px) saturate(1.55); }
   .header .icon-btn svg, .playbar button svg { width: 15px; height: 15px; pointer-events: none; }
@@ -51,16 +51,23 @@
   @keyframes eq-rise { 0%,100% { transform: scaleY(0.5); opacity: 0.6; } 50% { transform: scaleY(1); opacity: 1; } }
   .spinner { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.12); border-top-color: #00f5d4; animation: spin 0.7s linear infinite; margin: 0 auto; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .row .idx { width: 16px; font-size: 9px; color: rgba(255,255,255,0.4); text-align: center; flex-shrink: 0; }
+  .row .idx { width: 18px; font: 600 10px/1 "Segoe UI Mono", Consolas, monospace; color: rgba(156,255,223,.68); text-align: center; flex-shrink: 0; }
   .row .rcover { width: 34px; height: 34px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: #333; box-shadow: 0 4px 12px rgba(0,0,0,.22); transition: transform .28s cubic-bezier(.16,1,.3,1), filter .28s; }
   .row:hover .rcover, .row.playing .rcover { transform: scale(1.045); filter: saturate(1.12); }
   .row .rmeta { flex: 1; min-width: 0; }
-  .row .rname { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .row .rar { font-size: 10px; color: rgba(255,255,255,0.45); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .row .like { -webkit-app-region: no-drag; width: 24px; height: 24px; border: 1px solid transparent; border-radius: 8px; background: rgba(255,255,255,.025); color: rgba(255,255,255,0.4); cursor: pointer; flex-shrink: 0; font-size: 13px; opacity: .18; transform: translateX(4px); transition: opacity .18s, transform .18s, background .18s, color .18s, border-color .18s; }
+  .row .rname { font-size: 12.5px; line-height: 1.3; font-weight: 600; letter-spacing: .002em; color: rgba(255,255,255,.92); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row .rar { font-size: 10.5px; line-height: 1.3; color: rgba(225,240,240,.62); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row .like { -webkit-app-region: no-drag; width: 26px; height: 26px; border: 1px solid transparent; border-radius: 9px; background: rgba(255,255,255,.025); color: rgba(255,190,205,.72); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; opacity: .24; transform: translateX(4px); transition: opacity .18s, transform .18s, background .18s, color .18s, border-color .18s, box-shadow .18s; }
+  .row .like svg, .playbar .like-btn svg { width: 15px; height: 15px; display: block; pointer-events: none; overflow: visible; }
+  .row .like path, .playbar .like-btn path { fill: transparent; stroke: currentColor; transform-origin: center; transition: fill .2s ease, stroke .2s ease, transform .2s cubic-bezier(.16,1,.3,1); }
   .row:hover .like, .row.playing .like, .row .like.liked { opacity: 1; transform: translateX(0); }
-  .row .like:hover { color: #fff; background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.16); }
-  .row .like.liked { color: #ff5b7a; }
+  .row .like:hover, .row .like:focus-visible { color: #fff; background: rgba(255,255,255,.09); border-color: rgba(255,190,205,.36); outline: none; }
+  .row .like.liked, .playbar .like-btn.liked { color: #ff7895; background: rgba(255,91,122,.08); border-color: rgba(255,145,165,.22); box-shadow: 0 0 16px rgba(255,91,122,.13); }
+  .row .like.liked path, .playbar .like-btn.liked path { fill: currentColor; stroke: currentColor; }
+  .row .like.like-add, .playbar .like-btn.like-add { animation: heart-like-pop .38s cubic-bezier(.16,1,.3,1) both; }
+  .row .like.like-remove, .playbar .like-btn.like-remove { animation: heart-unlike .26s ease-out both; }
+  @keyframes heart-like-pop { 0% { transform: translateX(0) scale(.78); box-shadow: 0 0 0 rgba(255,91,122,0); } 55% { transform: translateX(0) scale(1.2); box-shadow: 0 0 0 7px rgba(255,91,122,.12), 0 0 22px rgba(255,91,122,.28); } 100% { transform: translateX(0) scale(1); box-shadow: 0 0 16px rgba(255,91,122,.13); } }
+  @keyframes heart-unlike { 0% { transform: translateX(0) scale(1); color: #ff7895; } 45% { transform: translateX(0) scale(.82); color: rgba(255,190,205,.64); } 100% { transform: translateX(0) scale(1); color: rgba(255,190,205,.72); } }
   .row .next-up { -webkit-app-region: no-drag; width: 24px; height: 24px; border: 1px solid transparent; background: rgba(255,255,255,.025); color: rgba(255,255,255,0.35); cursor: pointer; flex-shrink: 0; font-size: 11px; border-radius: 8px; opacity: .18; transform: translateX(4px); transition: opacity .18s, transform .18s, background .18s, color .18s, border-color .18s; }
   .row:hover .next-up, .row.playing .next-up { opacity: 1; transform: translateX(0); }
   .row .next-up:hover { color: #00f5d4; background: rgba(0,245,212,0.12); border-color: rgba(0,245,212,.22); }
@@ -95,12 +102,12 @@
   .playbar .cover { width: 32px; height: 32px; border-radius: 8px; object-fit: cover; flex: 0 0 auto; background: rgba(255,255,255,.07); box-shadow: 0 5px 14px rgba(0,0,0,.20); }
   .playbar-copy { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
   .playbar-title, .playbar-artist { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .playbar-title { font-size: 10.5px; font-weight: 750; color: rgba(255,255,255,.9); }
-  .playbar-artist { font-size: 9px; color: rgba(255,255,255,.44); }
+  .playbar-title { font-size: 11.5px; line-height: 1.25; font-weight: 650; color: rgba(255,255,255,.94); }
+  .playbar-artist { font-size: 10px; line-height: 1.3; color: rgba(225,240,240,.62); }
   .playbar .play { width: 42px; height: 42px; color: rgba(255,255,255,.96); background: rgba(0,0,0,.10); box-shadow: inset 0 0 2px 1px rgba(255,255,255,.34), inset 0 0 10px 4px rgba(255,255,255,.13), 0 10px 30px rgba(0,0,0,.18), 0 0 20px rgba(0,245,212,.08); }
   .playbar .play:hover { background: rgba(255,255,255,.075); }
-  .playbar .like-btn { color: rgba(255,155,179,.88); }
-  .playbar .like-btn.liked { color: #ff809a; box-shadow: inset 0 0 2px 1px rgba(255,180,196,.40), 0 0 18px rgba(255,91,122,.18); }
+  .playbar .like-btn { color: rgba(255,190,205,.78); }
+  .playbar .like-btn.liked { color: #ff7895; box-shadow: inset 0 0 2px 1px rgba(255,180,196,.40), 0 0 18px rgba(255,91,122,.18); }
   .playbar .lyrics-btn { font-size: 11px; font-weight: 800; color: rgba(255,255,255,0.58); }
   .playbar .lyrics-btn:hover { color: #00f5d4; }
   .mini-lyric { display: none; padding: 0 12px 8px; color: rgba(255,255,255,.84); font-size: 12px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 0 14px color-mix(in srgb, var(--lyric-glow) 42%, transparent); }
@@ -119,6 +126,9 @@
   }
   @media (min-width: 361px) and (max-width: 520px) and (min-height: 181px) {
     .widget { border-radius: 25px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
   }
   html.widget-forced-compact .header .sub,
   html.widget-forced-compact .tabs,
@@ -199,6 +209,10 @@
     if (!song) return '';
     return [song.name || '', song.artist || '', song.cover || '', song.liked ? 1 : 0].join('|');
   }
+  function likeKey(song) {
+    if (!song) return '';
+    return [song.name || '', song.artist || '', song.cover || ''].join('|');
+  }
   function listKey(list) {
     return (Array.isArray(list) ? list : []).map(function (item) {
       return [item && item.name || '', item && item.artist || '', item && item.cover || '', item && item.liked ? 1 : 0].join('~');
@@ -214,6 +228,25 @@
       var words = Array.isArray(line && line.words) ? line.words : [];
       return [line && line.time || 0, line && line.text || '', line && line.translation || '', words.length].join('~');
     }).join('||');
+  }
+  var pendingLikeEffects = Object.create(null);
+  function animateLikeButton(button, liked) {
+    if (!button) return;
+    button.classList.remove('like-add', 'like-remove');
+    void button.offsetWidth;
+    button.classList.toggle('liked', !!liked);
+    button.setAttribute('aria-pressed', String(!!liked));
+    button.setAttribute('aria-label', liked ? '取消喜欢' : '喜欢');
+    button.title = liked ? '取消喜欢' : '喜欢';
+    button.classList.add(liked ? 'like-add' : 'like-remove');
+  }
+  function queueLikeEffect(song, liked) {
+    var key = likeKey(song);
+    if (!key) return;
+    pendingLikeEffects[key] = !!liked;
+    window.setTimeout(function () {
+      if (pendingLikeEffects[key] === !!liked) delete pendingLikeEffects[key];
+    }, 900);
   }
   function setCoverElement(el, src, key) {
     if (!el) return;
@@ -299,7 +332,16 @@
     $('play-icon').innerHTML = state.playing
       ? '<path d="M7 5h3v14H7zm7 0h3v14h-3z"/>'
       : '<path d="M8 5v14l11-7z"/>';
-    $('btn-like').classList.toggle('liked', !!(state.current && state.current.liked));
+    var currentLiked = !!(state.current && state.current.liked);
+    var likeButton = $('btn-like');
+    likeButton.classList.toggle('liked', currentLiked);
+    likeButton.setAttribute('aria-pressed', String(currentLiked));
+    likeButton.setAttribute('aria-label', currentLiked ? '取消喜欢' : '喜欢');
+    likeButton.title = currentLiked ? '取消喜欢' : '喜欢';
+    if (state.current && pendingLikeEffects[likeKey(state.current)] === currentLiked) {
+      animateLikeButton(likeButton, currentLiked);
+      delete pendingLikeEffects[likeKey(state.current)];
+    }
     var miniLine = state.lyrics && state.lyrics[state.lyricActiveIndex];
     $('mini-lyric').textContent = miniLine && miniLine.text ? miniLine.text : (state.current ? state.current.name : '');
     document.documentElement.style.setProperty('--lyric-primary', state.lyricPalette.primary || '#f6fdff');
@@ -352,12 +394,24 @@
       '<div class="idx">' + String(i+1).padStart(2,'0') + '</div>' +
       '<img class="rcover" src="' + (song.cover || '') + '" onerror="this.style.background=\'#333\'">' +
       '<div class="rmeta"><div class="rname"></div><div class="rar"></div></div>' +
-      '<button class="like' + (song.liked ? ' liked' : '') + '">♡</button>' +
+      '<button class="like' + (song.liked ? ' liked' : '') + '" type="button" aria-label="' + (song.liked ? '取消喜欢' : '喜欢') + '" aria-pressed="' + (song.liked ? 'true' : 'false') + '" title="' + (song.liked ? '取消喜欢' : '喜欢') + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20.8 8.8c0 5.3-8.8 10.1-8.8 10.1S3.2 14.1 3.2 8.8A4.7 4.7 0 0 1 12 6.4a4.7 4.7 0 0 1 8.8 2.4Z"/></svg></button>' +
       '<button class="next-up" title="下一首播放">⏭</button>';
     row.querySelector('.rname').textContent = song.name || '未知';
     row.querySelector('.rar').textContent = song.artist || '';
+    var likeButton = row.querySelector('.like');
+    if (pendingLikeEffects[likeKey(song)] === !!song.liked) {
+      animateLikeButton(likeButton, !!song.liked);
+      delete pendingLikeEffects[likeKey(song)];
+    }
     row.addEventListener('click', onClick);
-    row.querySelector('.like').addEventListener('click', function (e) { e.stopPropagation(); onLike(); });
+    likeButton.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var button = e.currentTarget;
+      var nextLiked = !button.classList.contains('liked');
+      queueLikeEffect(song, nextLiked);
+      animateLikeButton(button, nextLiked);
+      onLike();
+    });
     if (onNextUp) row.querySelector('.next-up').addEventListener('click', function (e) { e.stopPropagation(); onNextUp(); });
     return row;
   }
@@ -424,7 +478,12 @@
   $('btn-play').addEventListener('click', function () { window.widgetBridge.sendAction({ type: 'toggle-play' }); });
   $('btn-prev').addEventListener('click', function () { window.widgetBridge.sendAction({ type: 'prev' }); });
   $('btn-next').addEventListener('click', function () { window.widgetBridge.sendAction({ type: 'next' }); });
-  $('btn-like').addEventListener('click', function () { window.widgetBridge.sendAction({ type: 'like-current' }); });
+  $('btn-like').addEventListener('click', function () {
+    var nextLiked = !this.classList.contains('liked');
+    queueLikeEffect(state.current, nextLiked);
+    animateLikeButton(this, nextLiked);
+    window.widgetBridge.sendAction({ type: 'like-current' });
+  });
   $('close-btn').addEventListener('click', function () { window.widgetBridge.close(); });
   $('lyrics-back').addEventListener('click', function () { state.panel = 'list'; render(); });
   $('hdr-cover').addEventListener('click', function () { state.panel = state.panel === 'lyrics' ? 'list' : 'lyrics'; render(); });
