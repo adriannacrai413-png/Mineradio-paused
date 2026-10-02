@@ -36,6 +36,23 @@ test('widget lyrics support translation and word timing without HTML interpolati
   assert.match(bridgeJs, /Array\.isArray\(l\.words\)/);
 });
 
+test('widget playlist surface has liquid-glass playback transitions', () => {
+  for (const marker of [
+    'class="playbar-track"',
+    'id="playbar-cover"',
+    'id="playbar-title"',
+    'id="playbar-artist"',
+    'cover-swap',
+    'widget-row-in',
+    '.row.playing',
+    'setCoverElement',
+  ]) {
+    assert.ok(widgetHtml.includes(marker), `missing widget polish marker: ${marker}`);
+  }
+  assert.match(widgetHtml, /row\.style\.setProperty\(['"]--row-index['"]/);
+  assert.match(widgetHtml, /setCoverElement\(\$\(['"]playbar-cover['"]\)/);
+});
+
 test('widget window state is bounded and mode-specific', () => {
   assert.match(mainJs, /PLAYLIST_WIDGET_MINI_TRIGGER_HEIGHT\s*=\s*180/);
   assert.match(mainJs, /PLAYLIST_WIDGET_MINI_HEIGHT\s*=\s*140/);
